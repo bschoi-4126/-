@@ -9,15 +9,21 @@
         body { font-family: 'Apple SD Gothic Neo', sans-serif; background-color: #f5f5f5; margin: 0; padding: 15px; }
         .container { max_width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
         
-        .summary-box { background: #e3f2fd; padding: 15px; border-radius: 10px; text-align: center; margin-bottom: 20px; }
+        /* 요약 박스 (파란색 영역) */
+        .summary-box { background: #e3f2fd; padding: 15px; border-radius: 10px; text-align: center; margin-bottom: 20px; position: relative; }
         .summary-amount { font-size: 24px; font-weight: bold; color: #1976d2; margin: 5px 0; }
         .progress-bar { background: #ddd; height: 10px; border-radius: 5px; margin-top: 10px; overflow: hidden; }
         .progress-fill { background: #1976d2; height: 100%; width: 0%; transition: width 0.5s; }
+        
+        /* ★ 전체 삭제 버튼 (요약 박스 오른쪽 위) ★ */
+        .btn-delete-all {
+            position: absolute; top: 10px; right: 10px;
+            background: #ffcdd2; color: #c62828; border: none;
+            border-radius: 5px; padding: 5px 8px; font-size: 11px; font-weight: bold; cursor: pointer;
+        }
 
-        /* 차트 영역 */
         .chart-container { position: relative; height: 250px; width: 100%; margin: 20px 0; display: flex; justify-content: center; }
 
-        /* 입력 폼 */
         input, select { width: 100%; padding: 12px; margin-bottom: 8px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
         .required-field { border-left: 4px solid #ff9800; }
 
@@ -27,20 +33,15 @@
         .btn-reset { background: #9e9e9e; color: white; }
         .btn-update { background: #4caf50; color: white; display: none; }
 
-        /* 리스트 스타일 변경 (봉수님 요청 반영) */
         .history-list { margin-top: 20px; list-style: none; padding: 0; }
         .history-item { border-bottom: 1px solid #eee; padding: 12px 0; display: flex; justify-content: space-between; align-items: center; }
         .item-left { display: flex; flex-direction: column; width: 65%; }
         .item-right { text-align: right; width: 35%; }
         
-        /* 1줄: 날짜, 카테고리 (작게, 회색) */
         .item-top-line { font-size: 12px; color: #888; margin-bottom: 4px; display: flex; align-items: center; gap: 5px;}
         .category-badge { background: #f0f0f0; padding: 2px 6px; border-radius: 4px; font-weight: normal; color: #555;}
-        
-        /* 2줄: 내역, 사용처, 결제자 (크게, 진하게) */
         .item-main { font-weight: bold; font-size: 16px; color: #333; }
         .item-payer { font-size: 12px; color: #1976d2; font-weight: normal; margin-left: 5px;}
-        
         .item-amount { font-weight: bold; color: #d32f2f; font-size: 16px; display: block;}
         
         .action-btns { margin-top: 5px; }
@@ -58,15 +59,15 @@
     <h3 style="text-align:center; margin-top:0;">🏠 우리집 가계부</h3>
     
     <div class="summary-box">
+        <button class="btn-delete-all" onclick="deleteAllData()">🗑️ 전체 초기화</button>
+        
         <div style="font-size:14px;">이번 달 쓴 돈</div>
         <div class="summary-amount" id="usedText">0원</div>
         <div style="font-size:14px; margin-top:5px;">남은 돈: <span id="remainingText" style="color:#2196f3; font-weight:bold;">계산 중...</span></div>
         <div class="progress-bar"><div class="progress-fill" id="progressBar"></div></div>
     </div>
 
-    <div class="chart-container">
-        <canvas id="expenseChart"></canvas>
-    </div>
+    <div class="chart-container"><canvas id="expenseChart"></canvas></div>
 
     <input type="hidden" id="editRowNumber">
     <input type="hidden" id="editOriginalDate">
@@ -102,158 +103,111 @@
     </div>
     
     <div class="loading" id="loadingMsg">처리 중입니다...</div>
-
     <h4 style="margin-bottom:10px;">📋 최근 내역</h4>
     <ul class="history-list" id="historyList"></ul>
 </div>
 
 <script>
-    // ★★★ 앱스 스크립트 배포 URL (끝이 /exec) 입력 ★★★
-    var GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxlixbAYlpUyzVwSVEF_aV6ac_7CnVfiueBBNpCuVstRe6UjYpTiARwDhsWvBV2OH_6-w/exec";  
+    // ★★★ 본인의 배포 URL (/exec)로 변경하세요 ★★★
+    var GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxlixbAYlpUyzVwSVEF_aV6ac_7CnVfiueBBNpCuVstRe6UjYpTiARwDhsWvBV2OH_6-w/exec";; 
     var MONTHLY_BUDGET = 2390000;
-    var myChart = null; // 차트 객체 담을 변수
+    var myChart = null;
 
     function loadData() {
         fetch(GOOGLE_SCRIPT_URL + "?action=read")
-        .then(function(res){ return res.json(); })
-        .then(function(data){
-            processData(data);
-        })
-        .catch(function(err){ console.error("로드 실패:", err); });
+        .then(res => res.json())
+        .then(data => processData(data))
+        .catch(err => console.error("로드 실패:", err));
     }
 
-    // 데이터 처리 및 차트/리스트 그리기
     function processData(data) {
         var totalUsed = 0;
         var now = new Date();
         var currentMonth = now.getMonth(); 
-        
-        // 카테고리별 합계 저장용 객체
         var categoryTotals = {};
 
-        // 1. 이번 달 지출 계산 및 카테고리별 집계
         for(var i=0; i<data.length; i++) {
             var row = data[i].values; 
             // [0:날짜, 1:구분, 2:내역, 3:사용처, 4:금액, 5:결제자]
             var dateObj = new Date(row[0]);
-            var amount = Number(row[4]);
+            var amount = Number(row[4]); // 5번째 칸이 금액!
             var category = row[1];
 
             if (dateObj.getMonth() === currentMonth) {
                 totalUsed += amount;
-                
-                // 차트용 집계
-                if (categoryTotals[category]) {
-                    categoryTotals[category] += amount;
-                } else {
-                    categoryTotals[category] = amount;
-                }
+                categoryTotals[category] = (categoryTotals[category] || 0) + amount;
             }
         }
 
-        // 2. 상단 요약 업데이트
         var remaining = MONTHLY_BUDGET - totalUsed;
         document.getElementById("usedText").innerText = totalUsed.toLocaleString() + "원";
         document.getElementById("remainingText").innerText = remaining.toLocaleString() + "원";
         var percent = (totalUsed / MONTHLY_BUDGET) * 100;
         document.getElementById("progressBar").style.width = Math.min(percent, 100) + "%";
 
-        // 3. 차트 그리기
         renderChart(categoryTotals);
-
-        // 4. 리스트 그리기
         renderHistory(data);
     }
 
-    // 차트 렌더링 함수
+    function deleteAllData() {
+        if(confirm("🚨 경고: 모든 데이터가 삭제됩니다!\n정말 초기화 하시겠습니까?")) {
+            if(confirm("진짜로 다 지웁니다? 돌이킬 수 없습니다!")) {
+                sendRequest({ action: "deleteAll" });
+            }
+        }
+    }
+
     function renderChart(totals) {
         var ctx = document.getElementById('expenseChart').getContext('2d');
-        
-        // 데이터 정렬 (금액 큰 순서)
-        var sortedLabels = Object.keys(totals).sort(function(a,b){return totals[b]-totals[a]});
-        var sortedData = sortedLabels.map(function(key){return totals[key]});
+        var sortedLabels = Object.keys(totals).sort((a,b) => totals[b]-totals[a]);
+        var sortedData = sortedLabels.map(key => totals[key]);
 
-        // 기존 차트가 있으면 삭제 (겹침 방지)
-        if (myChart) {
-            myChart.destroy();
-        }
-
-        if (sortedLabels.length === 0) {
-            // 데이터 없을 때 빈 차트 방지
-            return;
-        }
+        if (myChart) myChart.destroy();
+        if (sortedLabels.length === 0) return;
 
         myChart = new Chart(ctx, {
-            type: 'doughnut', // 도넛 모양
+            type: 'doughnut',
             data: {
                 labels: sortedLabels,
                 datasets: [{
                     data: sortedData,
-                    backgroundColor: [
-                        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', 
-                        '#FF9F40', '#8AC926', '#1982C4', '#6A4C93', '#C5C3C6'
-                    ],
+                    backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'],
                     borderWidth: 1
                 }]
             },
             options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom', // 범례를 아래로
-                        labels: { boxWidth: 12, font: { size: 11 } }
-                    },
-                    title: {
-                        display: true,
-                        text: '📊 이번 달 지출 분석'
-                    }
-                }
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { position: 'bottom' } }
             }
         });
     }
 
-    // 리스트 렌더링 (디자인 변경 적용)
     function renderHistory(data) {
         var list = document.getElementById("historyList");
         list.innerHTML = "";
         var reversedData = data.slice().reverse().slice(0, 20);
 
         for(var i=0; i<reversedData.length; i++) {
-            var itemData = reversedData[i];
-            var vals = itemData.values; 
+            var item = reversedData[i];
+            var v = item.values;
+            var date = new Date(v[0]);
+            var dateStr = (date.getMonth()+1) + "/" + date.getDate();
             
-            var dateObj = new Date(vals[0]);
-            var dateStr = (dateObj.getMonth()+1) + "/" + dateObj.getDate();
-            
-            // 데이터 표시 로직
-            var category = vals[1];
-            var detail = vals[2] ? vals[2] : category; // 내역 없으면 카테고리 이름 사용
-            var place = vals[3] ? " (" + vals[3] + ")" : ""; 
-            var payer = vals[5];
+            var detailText = v[2] ? v[2] : v[1];
+            var placeText = v[3] ? " (" + v[3] + ")" : ""; 
 
             var li = document.createElement("li");
             li.className = "history-item";
-            
-            // ★ 여기가 봉수님 요청하신 디자인 변경 부분 ★
             li.innerHTML = 
                 '<div class="item-left">' +
-                    // 1줄: 날짜 · 카테고리
-                    '<div class="item-top-line">' +
-                        '<span>' + dateStr + '</span>' +
-                        '<span class="category-badge">' + category + '</span>' +
-                    '</div>' +
-                    // 2줄: 내역 (사용처) (결제자)
-                    '<div class="item-main">' +
-                         detail + place + 
-                         '<span class="item-payer">' + payer + '</span>' +
-                    '</div>' +
+                    '<div class="item-top-line"><span>' + dateStr + '</span><span class="category-badge">' + v[1] + '</span></div>' +
+                    '<div class="item-main">' + detailText + placeText + '<span class="item-payer">' + v[5] + '</span></div>' +
                 '</div>' +
                 '<div class="item-right">' +
-                    '<span class="item-amount">-' + Number(vals[4]).toLocaleString() + '</span>' +
+                    '<span class="item-amount">-' + Number(v[4]).toLocaleString() + '</span>' +
                     '<div class="action-btns">' +
-                        '<button class="mini-btn btn-edit" onclick="enableEditMode(' + itemData.row + ', \'' + escapeHtml(JSON.stringify(vals)) + '\')">수정</button>' +
-                        '<button class="mini-btn btn-del" onclick="deleteData(' + itemData.row + ')">삭제</button>' +
+                        '<button class="mini-btn btn-edit" onclick="enableEditMode(' + item.row + ', \'' + escapeHtml(JSON.stringify(v)) + '\')">수정</button>' +
+                        '<button class="mini-btn btn-del" onclick="deleteData(' + item.row + ')">삭제</button>' +
                     '</div>' +
                 '</div>';
             list.appendChild(li);
@@ -261,9 +215,7 @@
     }
 
     function validateForm(category, amount, payer) {
-        if (!category) { alert("분류를 선택해주세요!"); return false; }
-        if (!amount) { alert("금액을 입력해주세요!"); return false; }
-        if (!payer) { alert("결제자를 선택해주세요!"); return false; }
+        if (!category || !amount || !payer) { alert("필수 항목(분류, 금액, 결제자)을 입력하세요!"); return false; }
         return true;
     }
 
@@ -276,17 +228,11 @@
 
         if (!validateForm(category, amount, payer)) return;
 
-        sendRequest({
-            category: category,
-            detail: detail,
-            place: place,
-            amount: amount,
-            payer: payer
-        });
+        sendRequest({ category, detail, place, amount, payer });
     }
 
     function enableEditMode(rowNum, valsStr) {
-        var vals = JSON.parse(valsStr); 
+        var vals = JSON.parse(valsStr);
         document.getElementById("editRowNumber").value = rowNum;
         document.getElementById("editOriginalDate").value = vals[0];
         document.getElementById("category").value = vals[1];
@@ -298,37 +244,25 @@
         document.getElementById("submitBtn").style.display = "none";
         document.getElementById("updateBtn").style.display = "block";
         document.getElementById("amount").classList.add("editing-mode");
-        window.scrollTo(0, 0);
+        window.scrollTo(0,0);
         alert("수정 모드입니다.");
     }
 
     function updateData() {
-        var rowNum = document.getElementById("editRowNumber").value;
+        var row = document.getElementById("editRowNumber").value;
+        var date = document.getElementById("editOriginalDate").value;
         var category = document.getElementById("category").value;
         var detail = document.getElementById("detail").value;
         var place = document.getElementById("place").value;
         var amount = document.getElementById("amount").value;
         var payer = document.getElementById("payer").value;
-        var originalDate = document.getElementById("editOriginalDate").value;
 
         if (!validateForm(category, amount, payer)) return;
-
-        sendRequest({
-            action: "update",
-            row: rowNum,
-            date: originalDate,
-            category: category,
-            detail: detail,
-            place: place,
-            amount: amount,
-            payer: payer
-        });
+        sendRequest({ action: "update", row, date, category, detail, place, amount, payer });
     }
 
-    function deleteData(rowNum) {
-        if(confirm("정말 삭제하시겠습니까?")) {
-            sendRequest({ action: "delete", row: rowNum });
-        }
+    function deleteData(row) {
+        if(confirm("정말 삭제하시겠습니까?")) sendRequest({ action: "delete", row: row });
     }
 
     function resetForm() {
@@ -348,18 +282,16 @@
         for (var key in params) { formData.append(key, params[key]); }
 
         fetch(GOOGLE_SCRIPT_URL, { method: "POST", body: formData })
-        .then(function(res){ return res.json(); })
-        .then(function(data){
+        .then(res => res.json())
+        .then(data => {
             if(data.result === "success") {
                 alert("처리되었습니다! ✅");
                 resetForm(); 
                 loadData();
-            } else {
-                alert("오류: " + data.error);
-            }
+            } else { alert("오류: " + data.error); }
         })
-        .catch(function(err){ alert("통신 오류"); })
-        .finally(function(){ document.getElementById("loadingMsg").style.display = "none"; });
+        .catch(err => alert("통신 오류"))
+        .finally(() => document.getElementById("loadingMsg").style.display = "none");
     }
 
     function escapeHtml(text) {
