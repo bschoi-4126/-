@@ -14,12 +14,42 @@
         .month-picker-container { text-align: center; margin-bottom: 15px; }
         .month-picker { font-size: 18px; padding: 8px 15px; border: 2px solid #1976d2; border-radius: 20px; color: #1976d2; font-weight: bold; background: white; cursor: pointer;}
 
-        .summary-box { background: #e3f2fd; padding: 20px 15px; border-radius: 10px; text-align: center; margin-bottom: 20px; position: relative; }
+        /* 요약 박스 수정 (여백 확보) */
+        .summary-box { 
+            background: #e3f2fd; 
+            padding: 20px 15px; 
+            padding-top: 45px; /* ★ 위쪽 여백을 늘려서 버튼 겹침 방지 ★ */
+            border-radius: 10px; 
+            text-align: center; 
+            margin-bottom: 20px; 
+            position: relative; 
+        }
         
-        /* 예산 표시 영역 */
-        .budget-label { font-size: 14px; color: #555; margin-bottom: 5px; display: flex; justify-content: center; align-items: center; gap: 5px; }
+        /* 예산 표시 영역 수정 (가운데 정렬, 버튼 예쁘게) */
+        .budget-row {
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            gap: 8px; /* 글자와 버튼 사이 간격 */
+            margin-bottom: 10px;
+        }
+        .budget-label { font-size: 14px; color: #555; margin: 0; }
         .budget-amount { font-size: 16px; font-weight: bold; color: #333; }
-        .btn-edit-budget { background: none; border: 1px solid #999; border-radius: 4px; padding: 1px 5px; font-size: 11px; cursor: pointer; color: #555; }
+        
+        /* ★ 수정 버튼 디자인 개선 (작고 귀엽게) ★ */
+        .btn-edit-budget { 
+            background: white; 
+            border: 1px solid #1976d2; 
+            color: #1976d2;
+            border-radius: 15px; /* 둥근 알약 모양 */
+            padding: 4px 10px; 
+            font-size: 11px; 
+            font-weight: bold;
+            cursor: pointer; 
+            width: auto; /* ★ 중요: 늘어나지 않게 자동 크기 조절 ★ */
+            line-height: 1;
+            white-space: nowrap; /* 줄바꿈 방지 */
+        }
         
         .summary-amount { font-size: 28px; font-weight: bold; color: #d32f2f; margin: 10px 0; }
         .remaining-area { background: white; border-radius: 8px; padding: 8px; display: inline-block; margin-top: 5px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
@@ -29,7 +59,21 @@
         .progress-bar { background: #ddd; height: 10px; border-radius: 5px; margin-top: 15px; overflow: hidden; }
         .progress-fill { background: #1976d2; height: 100%; width: 0%; transition: width 0.5s; }
         
-        .btn-delete-all { position: absolute; top: 10px; right: 10px; background: #ffcdd2; color: #c62828; border: none; border-radius: 5px; padding: 5px 8px; font-size: 11px; font-weight: bold; cursor: pointer; }
+        /* 전체 삭제 버튼 (오른쪽 위 고정) */
+        .btn-delete-all { 
+            position: absolute; 
+            top: 10px; 
+            right: 10px; 
+            background: #ffcdd2; 
+            color: #c62828; 
+            border: none; 
+            border-radius: 5px; 
+            padding: 6px 10px; 
+            font-size: 11px; 
+            font-weight: bold; 
+            cursor: pointer;
+            z-index: 10; /* 다른 요소보다 위에 */
+        }
 
         .chart-container { position: relative; height: 250px; width: 100%; margin: 20px 0; display: flex; justify-content: center; }
 
@@ -67,14 +111,14 @@
     <h3 style="text-align:center; margin-top:0;">🏠 우리집 가계부</h3>
     
     <div class="month-picker-container">
-        <input type="month" id="searchMonth" class="month-picker" onchange="processData()">
+        <input type="month" id="searchMonth" class="month-picker" onchange="loadData()">
     </div>
 
     <div class="summary-box">
         <button class="btn-delete-all" onclick="deleteAllData()">🗑️ 전체 초기화</button>
         
-        <div class="budget-label">
-            목표 예산: <span class="budget-amount" id="budgetDisplay">0원</span>
+        <div class="budget-row">
+            <span class="budget-label">목표 예산: <span class="budget-amount" id="budgetDisplay">0원</span></span>
             <button class="btn-edit-budget" onclick="editBudget()">✏️수정</button>
         </div>
         
@@ -131,9 +175,9 @@
 
 <script>
     // ★★★ 본인의 배포 URL (/exec)로 변경하세요 ★★★
-    var GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxlixbAYlpUyzVwSVEF_aV6ac_7CnVfiueBBNpCuVstRe6UjYpTiARwDhsWvBV2OH_6-w/exec";; 
+    var GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxlixbAYlpUyzVwSVEF_aV6ac_7CnVfiueBBNpCuVstRe6UjYpTiARwDhsWvBV2OH_6-w/exec";;  
     
-    var currentBudget = 0; // 이제 예산은 서버에서 받아옵니다.
+    var currentBudget = 0; 
     var allData = [];
     var myChart = null;
 
@@ -147,7 +191,6 @@
         loadData();
     };
 
-    // ★ 예산 수정 기능
     function editBudget() {
         var newBudget = prompt("새로운 목표 예산을 입력하세요 (숫자만):", currentBudget);
         if (newBudget !== null && newBudget.trim() !== "") {
@@ -157,7 +200,6 @@
                 return;
             }
             
-            // 서버에 저장 요청
             document.getElementById("loadingMsg").style.display = "block";
             var formData = new FormData();
             formData.append("action", "saveBudget");
@@ -168,7 +210,7 @@
             .then(data => {
                 if(data.result === "success") {
                     alert("예산이 변경되었습니다! 💰");
-                    loadData(); // 다시 로드해서 반영
+                    loadData(); 
                 }
             })
             .catch(err => alert("통신 오류"))
@@ -181,7 +223,6 @@
         fetch(GOOGLE_SCRIPT_URL + "?action=read")
         .then(res => res.json())
         .then(data => {
-            // 서버에서 데이터와 예산(budget)을 같이 받아옴
             allData = data.data; 
             currentBudget = Number(data.budget); 
             
