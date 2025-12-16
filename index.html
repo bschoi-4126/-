@@ -45,14 +45,9 @@
         .budget-row { display: flex; justify-content: center; align-items: center; gap: 8px; margin-bottom: 10px; }
         .budget-label { font-size: 14px; color: #555; margin: 0; }
         
-        .btn-edit-budget { 
-            background: white; border: 1px solid #999; color: #555;
-            border-radius: 15px; padding: 4px 10px; font-size: 11px; font-weight: bold;
-            cursor: pointer; width: auto; line-height: 1; white-space: nowrap; 
-        }
+        .btn-edit-budget { background: white; border: 1px solid #999; color: #555; border-radius: 15px; padding: 4px 10px; font-size: 11px; font-weight: bold; cursor: pointer; width: auto; line-height: 1; white-space: nowrap; }
         
         .summary-amount { font-size: 32px; font-weight: bold; color: #d81b60; margin: 10px 0; letter-spacing: -1px; }
-        
         .remaining-area { background: white; border-radius: 12px; padding: 8px 15px; display: inline-block; margin-top: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .remaining-label { font-size: 13px; color: #666; margin-right: 5px; }
         .remaining-money { font-size: 18px; font-weight: bold; color: #1976d2; }
@@ -60,42 +55,21 @@
         .progress-bar { background: rgba(255,255,255,0.5); height: 10px; border-radius: 5px; margin-top: 15px; overflow: hidden; }
         .progress-fill { background: #42a5f5; height: 100%; width: 0%; transition: width 0.5s; border-radius: 5px; }
         
-        .btn-delete-all { 
-            position: absolute; top: 15px; right: 15px; 
-            background: white; color: #e57373; border: 1px solid #e57373; 
-            border-radius: 5px; padding: 5px 8px; font-size: 11px; font-weight: bold; cursor: pointer; z-index: 10;
-        }
+        .btn-delete-all { position: absolute; top: 15px; right: 15px; background: white; color: #e57373; border: 1px solid #e57373; border-radius: 5px; padding: 5px 8px; font-size: 11px; font-weight: bold; cursor: pointer; z-index: 10; }
 
         .chart-container { position: relative; height: 250px; width: 100%; margin: 25px 0; display: flex; justify-content: center; }
 
-        #customLegend {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 8px; 
-            margin-top: 15px; 
-            margin-bottom: 40px; 
-            padding: 0 10px;
-        }
+        #customLegend { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 15px; margin-bottom: 40px; padding: 0 10px; }
         .legend-item { display: flex; align-items: center; font-size: 13px; color: #555; background: #f8f9fa; padding: 5px; border-radius: 5px; }
         .legend-color { width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; flex-shrink: 0; }
 
+        /* 선택창 스타일 */
         .custom-select-wrapper { position: relative; margin-bottom: 10px; }
-        .custom-select-trigger {
-            width: 100%; padding: 14px; 
-            border: 1px solid #eee; border-radius: 12px; 
-            background: #fafafa; font-size: 16px; color: #555; cursor: pointer;
-            display: flex; justify-content: space-between; align-items: center;
-            box-sizing: border-box;
-        }
+        .custom-select-trigger { width: 100%; padding: 14px; border: 1px solid #eee; border-radius: 12px; background: #fafafa; font-size: 16px; color: #555; cursor: pointer; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box; }
         .custom-select-trigger:after { content: '▼'; font-size: 12px; color: #999; }
-        .custom-options {
-            position: absolute; top: 105%; left: 0; right: 0;
-            background: white; border: 1px solid #eee; border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1); z-index: 100;
-            display: none; max-height: 300px; overflow-y: auto;
-        }
+        .custom-options { position: absolute; top: 105%; left: 0; right: 0; background: white; border: 1px solid #eee; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); z-index: 100; display: none; max-height: 300px; overflow-y: auto; }
         .custom-options.open { display: block; }
-        .custom-option {
-            padding: 12px 15px; border-bottom: 1px solid #f9f9f9; cursor: pointer; font-size: 15px; color: #333;
-        }
+        .custom-option { padding: 12px 15px; border-bottom: 1px solid #f9f9f9; cursor: pointer; font-size: 15px; color: #333; }
         .custom-option:hover { background: #f0f8ff; color: #1976d2; font-weight: bold; }
         .custom-option:last-child { border-bottom: none; }
 
@@ -110,20 +84,32 @@
         .btn-reset { background: #e0e0e0; color: #555; }
         .btn-update { background: #66bb6a; color: white; display: none; }
 
+        /* ★ 스마트 붙여넣기 버튼 스타일 (New) ★ */
+        .btn-smart-paste {
+            width: 100%;
+            background-color: #333; /* 검은색으로 눈에 띄게 */
+            color: #ffd700; /* 금색 글씨 */
+            border: none;
+            padding: 12px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .btn-smart-paste:active { transform: scale(0.98); }
+
         .history-list { margin-top: 30px; list-style: none; padding: 0; }
         .history-item { border-bottom: 1px solid #f0f0f0; padding: 15px 0; display: flex; justify-content: space-between; align-items: center; }
         .item-left { display: flex; flex-direction: column; width: 65%; }
         .item-right { text-align: right; width: 35%; }
         .item-top-line { font-size: 12px; color: #999; margin-bottom: 5px; display: flex; align-items: center; gap: 6px;}
-        
-        /* ★ 카테고리 뱃지 스타일 수정 (배경색은 스크립트에서 넣음) ★ */
-        .category-badge { 
-            /* background: #f0f4c3;  <- 기존 배경색 삭제 */
-            color: #fff; /* 글씨는 흰색으로 통일 */
-            padding: 3px 8px; border-radius: 10px; font-size: 11px; font-weight: bold; 
-            text-shadow: 0 1px 2px rgba(0,0,0,0.2); /* 글씨 잘 보이게 그림자 */
-        }
-        
+        .category-badge { color: #fff; padding: 3px 8px; border-radius: 10px; font-size: 11px; font-weight: bold; text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
         .item-main { font-weight: bold; font-size: 16px; color: #333; }
         .item-payer { font-size: 11px; color: #1976d2; border: 1px solid #bbdefb; padding: 2px 6px; border-radius: 4px; margin-left: 5px; font-weight: normal; }
         .item-amount { font-weight: bold; color: #d81b60; font-size: 17px; display: block;}
@@ -156,24 +142,17 @@
 
     <div class="summary-box">
         <button class="btn-delete-all" onclick="deleteAllData()">🗑️ 초기화</button>
-        
         <div class="budget-row">
             <span class="budget-label">목표 예산: <span id="budgetDisplay" style="font-weight:bold; color:#333;">0원</span></span>
             <button class="btn-edit-budget" onclick="editBudget()">✏️수정</button>
         </div>
-        
         <div style="font-size:14px; color:#555; margin-top:15px;">이번 달 쓴 돈</div>
         <div class="summary-amount" id="usedText">0원</div>
-        
         <div class="remaining-area">
             <span class="remaining-label">남은 돈:</span>
             <span class="remaining-money" id="remainingText">계산 중...</span>
         </div>
-        
-        <div class="daily-budget-box" id="dailyBudgetBox">
-            📅 계산 중...
-        </div>
-
+        <div class="daily-budget-box" id="dailyBudgetBox">📅 계산 중...</div>
         <div class="progress-bar"><div class="progress-fill" id="progressBar"></div></div>
     </div>
 
@@ -182,6 +161,8 @@
 
     <input type="hidden" id="editRowNumber">
     <input type="hidden" id="editOriginalDate">
+
+    <button type="button" class="btn-smart-paste" onclick="parseSMS()">📋 문자/카톡 복붙해서 자동입력</button>
 
     <input type="hidden" id="category"> 
     <div class="custom-select-wrapper">
@@ -208,7 +189,7 @@
     <input type="number" id="amount" class="required-field" placeholder="금액 (숫자만 입력)">
     
     <select id="payer" class="required-field">
-        <option value="카드">💳 현대카드</option>
+        <option value="현대카드">💳 현대카드</option>
         <option value="현금">💵 현금</option>
         <option value="기타">🎸 기타</option>
     </select>
@@ -231,7 +212,6 @@
     var allData = [];
     var myChart = null;
     var chartColors = ['#ff8a80', '#82b1ff', '#ffe57f', '#80cbc4', '#b39ddb', '#ffcc80', '#aed581', '#4dd0e1', '#9575cd', '#dce775', '#ff8a65', '#90a4ae'];
-    // ★ 카테고리별 색상을 저장할 지도(Map) ★
     var categoryColorMap = {};
 
     Chart.register(ChartDataLabels);
@@ -243,6 +223,100 @@
         document.getElementById("searchMonth").value = yyyy + "-" + mm;
         loadData();
     };
+
+    // ★ 1. 스마트 문자 분석 함수 (업그레이드 버전) ★
+    function parseSMS() {
+        var text = prompt("💳 카드 문자를 붙여넣기 하세요:");
+        if (!text) return;
+
+        // 1) 금액 찾기 (원 앞의 숫자 중 '0'이 아닌 가장 먼저 나오는 큰 숫자)
+        var amount = "";
+        var numbers = text.match(/([0-9,]+)(?=원)/g); // '원' 앞의 숫자들을 다 찾음
+        if (numbers) {
+            for(var i=0; i<numbers.length; i++) {
+                var num = numbers[i].replace(/,/g, '');
+                if(Number(num) > 0) { // 0원(잔여액)은 무시
+                    amount = num;
+                    break;
+                }
+            }
+        }
+        if (amount) document.getElementById("amount").value = amount;
+
+        // 2) 사용처(상호명) 찾기 - "거름망" 로직 적용
+        var garbage = ["Web발신", "체크", "승인", "사용", "취소", "일시불", "할부", "잔여", "누적", "한도", "거절", "금액", "원", "KRW", "소비쿠폰", "민생회복", "국민지원", "잔액", "가맹점"];
+        var cardNames = ["현대카드", "삼성카드", "롯데카드", "신한카드", "KB국민카드", "우리카드", "하나카드", "농협카드", "BC카드"];
+        
+        // 카드사 이름 자동 선택
+        for(var c of cardNames) {
+            if(text.includes(c) || text.includes(c.replace("카드", ""))) {
+                if(c === "현대카드") document.getElementById("payer").value = "현대카드";
+                else document.getElementById("payer").value = "기타"; // 현대 외엔 기타로
+                // (필요하면 여기에 다른 카드사 추가 가능)
+            }
+        }
+
+        // 텍스트를 줄바꿈이나 공백으로 쪼갬
+        var words = text.split(/[\s\n]+/); 
+        var placeCandidate = "";
+
+        for (var i = 0; i < words.length; i++) {
+            var w = words[i].replace(/[\[\]]/g, '').trim(); // 대괄호 제거
+            
+            // 제외 조건 (숫자, 날짜, 시간, 특수문자 포함 등)
+            if (w.length < 1) continue;
+            if (w.match(/[0-9]/)) continue; 
+            if (w.includes("/") || w.includes(":")) continue; 
+            
+            // 금지어(garbage)나 카드사 이름이 포함되면 패스
+            var isGarbage = false;
+            for (var g of garbage.concat(cardNames)) {
+                if (w.includes(g)) { isGarbage = true; break; }
+            }
+            
+            if (!isGarbage) {
+                // 살아남은 단어가 상호명일 확률이 높음!
+                placeCandidate = w;
+                // 보통 상호명은 한번 나오면 끝이므로 찾으면 멈춤 (혹은 가장 긴 단어 선택 로직 등으로 변경 가능)
+                break; 
+            }
+        }
+
+        if(placeCandidate) {
+            document.getElementById("place").value = placeCandidate;
+            document.getElementById("detail").value = placeCandidate;
+            
+            // ★ 3) 상호명을 보고 카테고리 자동 선택 (보너스 기능!)
+            autoSelectCategory(placeCandidate);
+        }
+
+        alert("분석 완료! 내용을 확인해주세요. 👀");
+    }
+
+    // ★ 2. 상호명으로 카테고리 찍어맞추기 (보너스 기능) ★
+    function autoSelectCategory(place) {
+        var map = {
+            "식비(장보기)": ["마트", "이마트", "홈플러스", "롯데", "컬리", "쿠팡", "SSG", "농협", "청과", "야채", "정육", "수산"],
+            "외식/배달": ["갈비", "식당", "카페", "커피", "스타벅스", "맥도날드", "버거", "피자", "치킨", "반점", "족발", "보쌈", "배민", "요기요", "쿠팡이츠", "음식", "키친"],
+            "편의점/간식": ["편의점", "CU", "GS25", "세븐일레븐", "이마트24", "빵", "베이커리", "과자", "아이스크림"],
+            "생활용품": ["다이소", "올리브영", "무인양품", "생활"],
+            "교통/차량": ["주유", "S-OIL", "GS칼텍스", "오일", "택시", "카카오T", "버스", "지하철", "코레일", "SRT", "하이패스", "주차"],
+            "의료/건강": ["병원", "의원", "약국", "소아과", "내과", "치과", "한의원"],
+            "육아/교육": ["학원", "어린이", "유치원", "키즈", "장난감", "문구", "서점", "아동"],
+            "미용/의류": ["헤어", "미용", "네일", "옷", "패션", "유니클로", "자라", "ABC", "신발"]
+        };
+
+        for (var cat in map) {
+            var keywords = map[cat];
+            for (var k of keywords) {
+                if (place.includes(k)) {
+                    // 키워드가 포함되면 해당 카테고리 선택
+                    selectCategory(cat, cat); // 아까 만든 선택 함수 호출
+                    return;
+                }
+            }
+        }
+    }
 
     function toggleCategoryOptions() {
         var options = document.getElementById("categoryOptions");
@@ -342,9 +416,7 @@
         else document.getElementById("remainingText").style.color = "#1976d2";
 
         calculateDailyBudget(selectedMonthStr, remaining);
-        // ★ 차트를 먼저 그려서 색상 정보를 확보함 ★
         renderChart(categoryTotals);
-        // ★ 확보된 색상 정보로 내역을 그림 ★
         renderHistory(filteredData);
     }
 
@@ -386,7 +458,6 @@
         var sortedLabels = Object.keys(totals).sort((a,b) => totals[b]-totals[a]);
         var sortedData = sortedLabels.map(key => totals[key]);
 
-        // ★ 카테고리별 색상 매핑 (이게 핵심!) ★
         categoryColorMap = {}; 
         for(var i=0; i<sortedLabels.length; i++) {
             categoryColorMap[sortedLabels[i]] = chartColors[i % chartColors.length];
@@ -459,14 +530,12 @@
             var detailText = v[2] ? v[2] : v[1];
             var placeText = v[3] ? " (" + v[3] + ")" : ""; 
             
-            // ★ 차트와 동일한 색상 적용 (없으면 기본 회색) ★
             var badgeColor = categoryColorMap[v[1]] || '#999';
 
             var li = document.createElement("li");
             li.className = "history-item";
             li.innerHTML = 
                 '<div class="item-left">' +
-                    // ★ 여기에 색상 스타일이 들어갑니다 ★
                     '<div class="item-top-line"><span>' + dateStr + '</span><span class="category-badge" style="background-color:' + badgeColor + ';">' + v[1] + '</span></div>' +
                     '<div class="item-main">' + detailText + placeText + '<span class="item-payer">' + v[5] + '</span></div>' +
                 '</div>' +
