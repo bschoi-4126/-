@@ -71,8 +71,14 @@
 
         .chart-container { position: relative; height: 250px; width: 100%; margin: 25px 0; display: flex; justify-content: center; }
 
+        /* 커스텀 범례 (수정됨: 아래 여백 추가) */
         #customLegend {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 15px; padding: 0 10px;
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 8px; 
+            margin-top: 15px; 
+            margin-bottom: 30px; /* ★ 이 줄을 추가해서 간격을 띄웠습니다! */
+            padding: 0 10px;
         }
         .legend-item { display: flex; align-items: center; font-size: 13px; color: #555; background: #f8f9fa; padding: 5px; border-radius: 5px; }
         .legend-color { width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; flex-shrink: 0; }
@@ -173,7 +179,7 @@
     <input type="number" id="amount" class="required-field" placeholder="금액 (숫자만 입력)">
     
     <select id="payer" class="required-field">
-        <option value="현대카드">💳 현대카드</option>
+        <option value="카드">💳 현대카드</option>
         <option value="현금">💵 현금</option>
         <option value="기타">🎸 기타</option>
     </select>
@@ -510,4 +516,3 @@
 
 </body>
 </html>
-
