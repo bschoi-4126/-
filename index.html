@@ -11,15 +11,13 @@
         body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; background-color: #fdfbf7; margin: 0; padding: 15px; }
         .container { max_width: 600px; margin: 0 auto; background: white; padding: 25px 20px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
         
-        /* 가족 배너 영역 */
+        /* 가족 배너 영역 (이름만 깔끔하게) */
         .family-header { text-align: center; margin-bottom: 20px; }
-        .family-title { font-size: 20px; font-weight: bold; color: #333; margin-bottom: 10px; }
+        .family-title { font-size: 20px; font-weight: bold; color: #333; margin-bottom: 15px; }
         .family-icons { display: flex; justify-content: center; gap: 20px; margin-bottom: 5px; }
         .member { display: flex; flex-direction: column; align-items: center; }
         .avatar { font-size: 30px; background: #fff0f5; width: 50px; height: 50px; line-height: 50px; border-radius: 50%; border: 2px solid #ffc1e3; margin-bottom: 5px; }
         .name { font-size: 13px; color: #555; font-weight: bold; }
-        
-        /* 응원 문구 삭제됨 */
 
         .month-picker-container { text-align: center; margin-bottom: 15px; }
         .month-picker { font-size: 18px; padding: 8px 15px; border: 2px solid #81c784; border-radius: 20px; color: #2e7d32; font-weight: bold; background: white; cursor: pointer;}
@@ -34,6 +32,7 @@
             position: relative; 
         }
         
+        /* 일일 예산 박스 */
         .daily-budget-box {
             background-color: rgba(255, 255, 255, 0.7);
             border-radius: 10px;
@@ -71,18 +70,41 @@
 
         .chart-container { position: relative; height: 250px; width: 100%; margin: 25px 0; display: flex; justify-content: center; }
 
-        /* 커스텀 범례 (수정됨: 아래 여백 추가) */
+        /* ★ 커스텀 범례 (겹침 방지 여백 추가됨) ★ */
         #customLegend {
-            display: grid; 
-            grid-template-columns: 1fr 1fr; 
-            gap: 8px; 
+            display: grid; grid-template-columns: 1fr 1fr; gap: 8px; 
             margin-top: 15px; 
-            margin-bottom: 30px; /* ★ 이 줄을 추가해서 간격을 띄웠습니다! */
+            margin-bottom: 40px; /* 입력창과 겹치지 않게 여백 확보 */
             padding: 0 10px;
         }
         .legend-item { display: flex; align-items: center; font-size: 13px; color: #555; background: #f8f9fa; padding: 5px; border-radius: 5px; }
         .legend-color { width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; flex-shrink: 0; }
 
+        /* ★ 새로운 카테고리 선택창 디자인 (누르면 바로 닫힘) ★ */
+        .custom-select-wrapper { position: relative; margin-bottom: 10px; }
+        .custom-select-trigger {
+            width: 100%; padding: 14px; 
+            border: 1px solid #eee; border-radius: 12px; 
+            background: #fafafa; font-size: 16px; color: #555; cursor: pointer;
+            display: flex; justify-content: space-between; align-items: center;
+            box-sizing: border-box;
+        }
+        .custom-select-trigger:after { content: '▼'; font-size: 12px; color: #999; }
+        .custom-options {
+            position: absolute; top: 105%; left: 0; right: 0;
+            background: white; border: 1px solid #eee; border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); z-index: 100;
+            display: none; max-height: 300px; overflow-y: auto;
+        }
+        .custom-options.open { display: block; }
+        .custom-option {
+            padding: 12px 15px; border-bottom: 1px solid #f9f9f9; cursor: pointer; font-size: 15px; color: #333;
+        }
+        .custom-option:hover { background: #f0f8ff; color: #1976d2; font-weight: bold; }
+        .custom-option:last-child { border-bottom: none; }
+
+
+        /* 기본 입력창 스타일 */
         input, select { width: 100%; padding: 14px; margin-bottom: 10px; border: 1px solid #eee; border-radius: 12px; box-sizing: border-box; font-size: 16px; background: #fafafa; }
         input:focus, select:focus { outline: none; border-color: #42a5f5; background: white; }
         .required-field { border-left: 4px solid #ffb74d; }
@@ -159,22 +181,26 @@
     <input type="hidden" id="editRowNumber">
     <input type="hidden" id="editOriginalDate">
 
-    <select id="category" class="required-field">
-        <option value="" disabled selected>📂 분류를 선택해주세요</option>
-        <option value="식비(장보기)">🍎 식비(장보기)</option>
-        <option value="외식/배달">🍖 외식/배달</option>
-        <option value="편의점/간식">🍪 편의점/간식</option>
-        <option value="생활용품">🧻 생활용품</option>
-        <option value="육아/교육">👶 육아/교육 (주원/서연)</option>
-        <option value="문화/공연">🎬 문화/공연</option>
-        <option value="미용/의류">👗 미용/의류</option>
-        <option value="교통/차량">🚗 교통/차량</option>
-        <option value="의료/건강">💊 의료/건강</option>
-        <option value="경조사/선물">🎁 경조사/선물</option>
-        <option value="기타">🎸 기타</option>
-    </select>
+    <input type="hidden" id="category"> <div class="custom-select-wrapper">
+        <div class="custom-select-trigger" onclick="toggleCategoryOptions()" id="categoryTrigger">
+            📂 분류를 선택해주세요
+        </div>
+        <div class="custom-options" id="categoryOptions">
+            <div class="custom-option" onclick="selectCategory('식비(장보기)', '🍎 식비(장보기)')">🍎 식비(장보기)</div>
+            <div class="custom-option" onclick="selectCategory('외식/배달', '🍖 외식/배달')">🍖 외식/배달</div>
+            <div class="custom-option" onclick="selectCategory('편의점/간식', '🍪 편의점/간식')">🍪 편의점/간식</div>
+            <div class="custom-option" onclick="selectCategory('생활용품', '🧻 생활용품')">🧻 생활용품</div>
+            <div class="custom-option" onclick="selectCategory('육아/교육', '👶 육아/교육 (주원/서연)')">👶 육아/교육</div>
+            <div class="custom-option" onclick="selectCategory('문화/공연', '🎬 문화/공연')">🎬 문화/공연</div>
+            <div class="custom-option" onclick="selectCategory('미용/의류', '👗 미용/의류')">👗 미용/의류</div>
+            <div class="custom-option" onclick="selectCategory('교통/차량', '🚗 교통/차량')">🚗 교통/차량</div>
+            <div class="custom-option" onclick="selectCategory('의료/건강', '💊 의료/건강')">💊 의료/건강</div>
+            <div class="custom-option" onclick="selectCategory('경조사/선물', '🎁 경조사/선물')">🎁 경조사/선물</div>
+            <div class="custom-option" onclick="selectCategory('기타', '🎸 기타')">🎸 기타</div>
+        </div>
+    </div>
     
-    <input type="text" id="detail" placeholder="내역 (예: 주원이 장난감, 장보기)">
+    <input type="text" id="detail" placeholder="내역 (예: 주원이 장난감, 이마트)">
     <input type="text" id="place" placeholder="사용처 (예: 쿠팡, 다이소)">
     <input type="number" id="amount" class="required-field" placeholder="금액 (숫자만 입력)">
     
@@ -196,7 +222,7 @@
 </div>
 
 <script>
-    // ★★★ 본인의 배포 URL (/exec)로 변경하세요 ★★★
+    // ★★★ 봉수님의 URL 적용 완료 ★★★
     var GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxlixbAYlpUyzVwSVEF_aV6ac_7CnVfiueBBNpCuVstRe6UjYpTiARwDhsWvBV2OH_6-w/exec"; 
     
     var currentBudget = 0; 
@@ -213,6 +239,32 @@
         document.getElementById("searchMonth").value = yyyy + "-" + mm;
         loadData();
     };
+
+    // ★ 카테고리 선택창 제어 함수들 ★
+    function toggleCategoryOptions() {
+        var options = document.getElementById("categoryOptions");
+        options.classList.toggle("open");
+    }
+
+    function selectCategory(value, text) {
+        document.getElementById("category").value = value; 
+        document.getElementById("categoryTrigger").innerText = text; 
+        document.getElementById("categoryTrigger").style.color = "#333";
+        document.getElementById("categoryTrigger").style.borderColor = "#42a5f5";
+        document.getElementById("categoryOptions").classList.remove("open"); // 즉시 닫기
+    }
+    
+    // 화면 다른 곳 누르면 창 닫기
+    window.onclick = function(event) {
+        if (!event.target.matches('.custom-select-trigger')) {
+            var dropdowns = document.getElementsByClassName("custom-options");
+            for (var i = 0; i < dropdowns.length; i++) {
+                if (dropdowns[i].classList.contains('open')) {
+                    dropdowns[i].classList.remove('open');
+                }
+            }
+        }
+    }
 
     function editBudget() {
         var newBudget = prompt("💰 우리집 목표 예산을 입력해주세요 (숫자만):", currentBudget);
@@ -443,7 +495,9 @@
         var vals = JSON.parse(valsStr);
         document.getElementById("editRowNumber").value = rowNum;
         document.getElementById("editOriginalDate").value = vals[0];
-        document.getElementById("category").value = vals[1];
+        // 커스텀 선택창 값 세팅
+        selectCategory(vals[1], vals[1]); 
+        
         document.getElementById("detail").value = vals[2];
         document.getElementById("place").value = vals[3];
         document.getElementById("amount").value = vals[4];
@@ -481,6 +535,10 @@
 
     function resetForm() {
         document.getElementById("category").value = "";
+        document.getElementById("categoryTrigger").innerText = "📂 분류를 선택해주세요";
+        document.getElementById("categoryTrigger").style.color = "#555";
+        document.getElementById("categoryTrigger").style.borderColor = "#eee";
+
         document.getElementById("detail").value = "";
         document.getElementById("place").value = "";
         document.getElementById("amount").value = "";
