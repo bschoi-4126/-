@@ -47,9 +47,8 @@
         .remaining-money { font-size: 18px; font-weight: bold; color: #1976d2; }
         .progress-bar { background: rgba(255,255,255,0.5); height: 10px; border-radius: 5px; margin-top: 15px; overflow: hidden; }
         .progress-fill { background: #42a5f5; height: 100%; width: 0%; transition: width 0.5s; border-radius: 5px; }
-        
-        /* 초기화 버튼 삭제됨 */
-        
+        .btn-delete-all { position: absolute; top: 15px; right: 15px; background: white; color: #e57373; border: 1px solid #e57373; border-radius: 5px; padding: 5px 8px; font-size: 11px; font-weight: bold; cursor: pointer; z-index: 10; }
+
         .chart-container { position: relative; height: 250px; width: 100%; margin: 25px 0; display: flex; justify-content: center; }
         #customLegend { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 15px; margin-bottom: 40px; padding: 0 10px; }
         .legend-item { display: flex; align-items: center; font-size: 13px; color: #555; background: #f8f9fa; padding: 5px; border-radius: 5px; }
@@ -97,6 +96,7 @@
         .loading { text-align: center; color: #888; margin-top: 20px; display: none; font-size: 13px; }
         .editing-mode { border: 2px solid #66bb6a !important; background-color: #e8f5e9; }
 
+        /* 자산 탭 전용 스타일 */
         .asset-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 14px; border-bottom: 1px dashed rgba(0,0,0,0.1); }
         .asset-row:last-child { border-bottom: none; }
         .repeat-box { display: flex; align-items: center; gap: 8px; margin-bottom: 15px; background: #f3e5f5; padding: 10px; border-radius: 12px; font-size: 14px; color: #5e35b1; font-weight: bold; }
@@ -305,14 +305,14 @@
         for(var i=0; i<allData.length; i++) {
             var row = allData[i].values; 
             
-            // ★ 날짜 포맷 (외계어 제거 및 시간 표시) ★
+            // ★ 시간 포맷팅 (YYYY-MM-DD HH:mm 형태로 보기 좋게 변환)
             var rawDate = row[0];
             var dateObj = new Date(rawDate);
             var m = dateObj.getMonth() + 1;
             var d = dateObj.getDate();
             var h = String(dateObj.getHours()).padStart(2, '0');
             var mi = String(dateObj.getMinutes()).padStart(2, '0');
-            var prettyDate = m + "/" + d + " " + h + ":" + mi; 
+            var prettyDate = m + "/" + d + " " + h + ":" + mi; // 예: 12/17 15:30
 
             var cat = row[1]; var detail = row[2]; var amount = Number(row[4]); 
             var rowMonth = dateObj.getFullYear() + "-" + String(dateObj.getMonth() + 1).padStart(2, '0');
@@ -377,19 +377,23 @@
         var baseMonth = Number(parts[1]) - 1; 
         var baseDay = new Date().getDate(); 
         
-        // ★ 시간 캡처 ★
+        // ★ 시간 정보 포함
         var now = new Date();
-        var currentTimeString = " " + String(now.getHours()).padStart(2, '0') + ":" + String(now.getMinutes()).padStart(2, '0');
+        var currentHour = now.getHours();
+        var currentMin = now.getMinutes();
         
         var monthlyAmount = Math.floor(amount / months);
 
         for (var i = 0; i < months; i++) {
-            var futureDate = new Date(baseYear, baseMonth + i, baseDay);
+            var futureDate = new Date(baseYear, baseMonth + i, baseDay, currentHour, currentMin);
+            
+            // 날짜 포맷팅 (YYYY-MM-DD HH:mm)
             var y = futureDate.getFullYear();
             var m = String(futureDate.getMonth() + 1).padStart(2, '0');
             var d = String(futureDate.getDate()).padStart(2, '0');
-            // ★ 날짜 뒤에 시간 붙여서 전송 ★
-            var dateStr = y + "-" + m + "-" + d + currentTimeString; 
+            var h = String(futureDate.getHours()).padStart(2, '0');
+            var mi = String(futureDate.getMinutes()).padStart(2, '0');
+            var dateStr = y + "-" + m + "-" + d + " " + h + ":" + mi;
             
             var detailText = detail + (months > 1 ? " (" + (i+1) + "/" + months + " 할부)" : "");
 
@@ -424,11 +428,12 @@
         var formData = new FormData();
         var selectedMonth = document.getElementById("searchMonth").value;
         
-        // ★ 자산 탭도 시간 캡처 ★
+        // ★ 자산 입력도 현재 시간 포함
         var now = new Date();
-        var today = now.getDate();
-        var currentTimeString = " " + String(now.getHours()).padStart(2, '0') + ":" + String(now.getMinutes()).padStart(2, '0');
-        var saveDate = selectedMonth + "-" + String(today).padStart(2,'0') + currentTimeString;
+        var today = String(now.getDate()).padStart(2, '0');
+        var h = String(now.getHours()).padStart(2, '0');
+        var mi = String(now.getMinutes()).padStart(2, '0');
+        var saveDate = selectedMonth + "-" + today + " " + h + ":" + mi;
 
         formData.append("date", saveDate);
         formData.append("category", saveCat);
@@ -458,7 +463,11 @@
         var recurringItems = [];
         for(var i=0; i<allData.length; i++) {
             var row = allData[i].values;
-            if(row[0].substring(0,7) === prevMonthStr && row[2].includes("[반복]")) {
+            // 날짜 비교 (YYYY-MM)
+            var rowDateStr = row[0]; // "2023-12-17 15:30"
+            var rowMonth = rowDateStr.substring(0, 7);
+            
+            if(rowMonth === prevMonthStr && row[2].includes("[반복]")) {
                 recurringItems.push(row);
             }
         }
@@ -468,8 +477,11 @@
 
         document.getElementById("loadingMsg").style.display = "block";
         var promises = recurringItems.map(row => {
-            // 시간은 그냥 00:00으로 들어갈 수 있으니, 복사할 때 현재 시간 부여하거나 날짜만 유지
-            var newDate = selectedMonthStr + "-" + row[0].split("-")[2].substring(0,2) + " 09:00"; 
+            // 날짜만 이번 달로 변경 (시간은 유지)
+            var oldDateStr = row[0]; // "2023-11-17 15:30"
+            var dayTime = oldDateStr.substring(8); // "17 15:30"
+            var newDate = selectedMonthStr + "-" + dayTime; 
+            
             var formData = new FormData();
             formData.append("date", newDate);
             formData.append("category", row[1]);
@@ -530,14 +542,14 @@
         for(var i=0; i<reversedData.length; i++) {
             var item = reversedData[i]; var v = item.values;
             
-            // ★ 날짜 예쁘게 (2) ★
+            // ★ 리스트 출력 시에도 예쁜 날짜 포맷 적용
             var rawDate = v[0];
             var dateObj = new Date(rawDate);
             var m = dateObj.getMonth() + 1;
             var d = dateObj.getDate();
             var h = String(dateObj.getHours()).padStart(2, '0');
             var mi = String(dateObj.getMinutes()).padStart(2, '0');
-            var prettyDate = m + "/" + d + " " + h + ":" + mi; 
+            var prettyDate = m + "/" + d + " " + h + ":" + mi;
 
             var detailText = v[2] ? v[2] : v[1]; var placeText = v[3] ? " (" + v[3] + ")" : ""; 
             var badgeColor = categoryColorMap[v[1]] || '#999';
@@ -561,7 +573,10 @@
         for (var c in map) { for (var k of map[c]) { if (p.includes(k)) { selectCategory(c,c); return; } } }
     }
     function deleteData(r) { if(confirm("삭제?")) { var f=new FormData(); f.append("action","delete"); f.append("row",r); fetch(GOOGLE_SCRIPT_URL,{method:"POST",body:f}).then(()=>loadData()); } }
+    
+    // ★ 삭제된 초기화 버튼 함수 (혹시 몰라 코드는 남기되 버튼은 UI에서 제거됨)
     function deleteAllData() { if(confirm("전체 삭제?")) { var f=new FormData(); f.append("action","deleteAll"); fetch(GOOGLE_SCRIPT_URL,{method:"POST",body:f}).then(()=>loadData()); } }
+    
     function enableEditMode(r,v) { var val=JSON.parse(v); document.getElementById("editRowNumber").value=r; document.getElementById("editOriginalDate").value=val[0]; selectCategory(val[1],val[1]); document.getElementById("detail").value=val[2]; document.getElementById("place").value=val[3]; document.getElementById("amount").value=val[4]; document.getElementById("payer").value=val[5]; document.getElementById("submitBtn").style.display="none"; document.getElementById("updateBtn").style.display="block"; document.getElementById("amount").classList.add("editing-mode"); window.scrollTo(0,0); }
     function updateData() { 
         var row = document.getElementById("editRowNumber").value;
