@@ -15,7 +15,7 @@
     
     <style>
         body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; background-color: #fdfbf7; margin: 0; padding: 15px; }
-        .container { max_width: 600px; margin: 0 auto; background: white; padding: 25px 20px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); min-height:80vh;}
+        .container { max_width: 600px; margin: 0 auto; background: white; padding: 25px 20px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); min-height: 80vh; }
         
         .family-header { text-align: center; margin-bottom: 20px; }
         .family-title { font-size: 20px; font-weight: bold; color: #333; margin-bottom: 15px; }
@@ -24,29 +24,31 @@
         .avatar { font-size: 30px; background: #fff0f5; width: 50px; height: 50px; line-height: 50px; border-radius: 50%; border: 2px solid #ffc1e3; margin-bottom: 5px; }
         .name { font-size: 13px; color: #555; font-weight: bold; }
 
+        .tab-wrapper { display: flex; gap: 10px; margin-bottom: 20px; }
+        .tab-btn { flex: 1; padding: 12px; border-radius: 12px; border: none; font-weight: bold; cursor: pointer; background: #eee; color: #777; transition: 0.3s; }
+        .tab-btn.active { background: #42a5f5; color: white; box-shadow: 0 4px 10px rgba(66,165,245,0.3); }
+        .tab-btn.asset-active { background: #7e57c2; color: white; box-shadow: 0 4px 10px rgba(126,87,194,0.3); }
+        
+        .page-section { display: none; }
+        .page-section.active { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
         .month-picker-container { text-align: center; margin-bottom: 15px; }
         .month-picker { font-size: 18px; padding: 8px 15px; border: 2px solid #81c784; border-radius: 20px; color: #2e7d32; font-weight: bold; background: white; cursor: pointer;}
 
-        .summary-box { 
-            background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%); 
-            padding: 20px 15px; padding-top: 45px; border-radius: 15px; 
-            text-align: center; margin-bottom: 20px; position: relative; 
-        }
+        .summary-box { background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%); padding: 20px 15px; padding-top: 45px; border-radius: 15px; text-align: center; margin-bottom: 20px; position: relative; }
         .summary-box.asset-theme { background: linear-gradient(135deg, #ede7f6 0%, #d1c4e9 100%); }
 
         .daily-budget-box { background-color: rgba(255, 255, 255, 0.7); border-radius: 10px; padding: 10px; margin-top: 15px; font-size: 14px; color: #5e35b1; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-
         .budget-row { display: flex; justify-content: center; align-items: center; gap: 8px; margin-bottom: 10px; }
-        .budget-label { font-size: 14px; color: #555; margin: 0; }
         .btn-edit-budget { background: white; border: 1px solid #999; color: #555; border-radius: 15px; padding: 4px 10px; font-size: 11px; font-weight: bold; cursor: pointer; width: auto; line-height: 1; white-space: nowrap; }
-        
         .summary-amount { font-size: 32px; font-weight: bold; color: #d81b60; margin: 10px 0; letter-spacing: -1px; }
         .remaining-area { background: white; border-radius: 12px; padding: 8px 15px; display: inline-block; margin-top: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .remaining-label { font-size: 13px; color: #666; margin-right: 5px; }
         .remaining-money { font-size: 18px; font-weight: bold; color: #1976d2; }
-        
         .progress-bar { background: rgba(255,255,255,0.5); height: 10px; border-radius: 5px; margin-top: 15px; overflow: hidden; }
         .progress-fill { background: #42a5f5; height: 100%; width: 0%; transition: width 0.5s; border-radius: 5px; }
+        
+        /* 초기화 버튼 삭제됨 */
         
         .chart-container { position: relative; height: 250px; width: 100%; margin: 25px 0; display: flex; justify-content: center; }
         #customLegend { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 15px; margin-bottom: 40px; padding: 0 10px; }
@@ -94,15 +96,6 @@
 
         .loading { text-align: center; color: #888; margin-top: 20px; display: none; font-size: 13px; }
         .editing-mode { border: 2px solid #66bb6a !important; background-color: #e8f5e9; }
-
-        .tab-wrapper { display: flex; gap: 10px; margin-bottom: 20px; }
-        .tab-btn { flex: 1; padding: 12px; border-radius: 12px; border: none; font-weight: bold; cursor: pointer; background: #eee; color: #777; transition: 0.3s; }
-        .tab-btn.active { background: #42a5f5; color: white; box-shadow: 0 4px 10px rgba(66,165,245,0.3); }
-        .tab-btn.asset-active { background: #7e57c2; color: white; box-shadow: 0 4px 10px rgba(126,87,194,0.3); }
-        
-        .page-section { display: none; }
-        .page-section.active { display: block; animation: fadeIn 0.3s; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         .asset-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 14px; border-bottom: 1px dashed rgba(0,0,0,0.1); }
         .asset-row:last-child { border-bottom: none; }
@@ -312,17 +305,16 @@
         for(var i=0; i<allData.length; i++) {
             var row = allData[i].values; 
             
-            // ★ 날짜 포맷 예쁘게 다듬기 (T, Z, 000 삭제) ★
+            // ★ 날짜 포맷 (외계어 제거 및 시간 표시) ★
             var rawDate = row[0];
             var dateObj = new Date(rawDate);
             var m = dateObj.getMonth() + 1;
             var d = dateObj.getDate();
             var h = String(dateObj.getHours()).padStart(2, '0');
             var mi = String(dateObj.getMinutes()).padStart(2, '0');
-            var prettyDate = m + "/" + d + " " + h + ":" + mi; // 예: 12/17 15:00
+            var prettyDate = m + "/" + d + " " + h + ":" + mi; 
 
             var cat = row[1]; var detail = row[2]; var amount = Number(row[4]); 
-            // 비교용 월 (YYYY-MM)
             var rowMonth = dateObj.getFullYear() + "-" + String(dateObj.getMonth() + 1).padStart(2, '0');
             
             var isAsset = cat.startsWith("[수입]") || cat.startsWith("[고정]");
@@ -358,7 +350,7 @@
         
         calculateDailyBudget(selectedMonthStr, remaining);
         renderChart(categoryTotals);
-        renderHistory(expenseData); // 기존 함수 사용
+        renderHistory(expenseData); 
 
         document.getElementById("carryoverDisplay").innerText = prevAsset.toLocaleString() + "원";
         document.getElementById("incomeDisplay").innerText = "+" + incomeTotal.toLocaleString() + "원";
@@ -385,6 +377,10 @@
         var baseMonth = Number(parts[1]) - 1; 
         var baseDay = new Date().getDate(); 
         
+        // ★ 시간 캡처 ★
+        var now = new Date();
+        var currentTimeString = " " + String(now.getHours()).padStart(2, '0') + ":" + String(now.getMinutes()).padStart(2, '0');
+        
         var monthlyAmount = Math.floor(amount / months);
 
         for (var i = 0; i < months; i++) {
@@ -392,7 +388,8 @@
             var y = futureDate.getFullYear();
             var m = String(futureDate.getMonth() + 1).padStart(2, '0');
             var d = String(futureDate.getDate()).padStart(2, '0');
-            var dateStr = y + "-" + m + "-" + d;
+            // ★ 날짜 뒤에 시간 붙여서 전송 ★
+            var dateStr = y + "-" + m + "-" + d + currentTimeString; 
             
             var detailText = detail + (months > 1 ? " (" + (i+1) + "/" + months + " 할부)" : "");
 
@@ -426,8 +423,12 @@
         document.getElementById("loadingMsg").style.display = "block";
         var formData = new FormData();
         var selectedMonth = document.getElementById("searchMonth").value;
-        var today = new Date().getDate();
-        var saveDate = selectedMonth + "-" + String(today).padStart(2,'0');
+        
+        // ★ 자산 탭도 시간 캡처 ★
+        var now = new Date();
+        var today = now.getDate();
+        var currentTimeString = " " + String(now.getHours()).padStart(2, '0') + ":" + String(now.getMinutes()).padStart(2, '0');
+        var saveDate = selectedMonth + "-" + String(today).padStart(2,'0') + currentTimeString;
 
         formData.append("date", saveDate);
         formData.append("category", saveCat);
@@ -467,7 +468,8 @@
 
         document.getElementById("loadingMsg").style.display = "block";
         var promises = recurringItems.map(row => {
-            var newDate = selectedMonthStr + "-" + row[0].split("-")[2]; 
+            // 시간은 그냥 00:00으로 들어갈 수 있으니, 복사할 때 현재 시간 부여하거나 날짜만 유지
+            var newDate = selectedMonthStr + "-" + row[0].split("-")[2].substring(0,2) + " 09:00"; 
             var formData = new FormData();
             formData.append("date", newDate);
             formData.append("category", row[1]);
@@ -528,7 +530,7 @@
         for(var i=0; i<reversedData.length; i++) {
             var item = reversedData[i]; var v = item.values;
             
-            // ★ 날짜 포맷 예쁘게 다듬기 (여기서도 적용) ★
+            // ★ 날짜 예쁘게 (2) ★
             var rawDate = v[0];
             var dateObj = new Date(rawDate);
             var m = dateObj.getMonth() + 1;
